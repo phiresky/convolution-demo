@@ -3,7 +3,6 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import 'bootstrap';
 import 'bootstrap/css/bootstrap.css!';
-import 'jsxgraphcore.js';
 import * as $ from "jquery";
 
 JXG.Options.text.fontSize = 16;

@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
-		"target": "ES5",
-		"out": "bin/program.js",
+		"target": "es5",
+		"outDir": "bin",
 		"watch": false,
 		"sourceMap": true,
 		"noImplicitAny": true,
