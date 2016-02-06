@@ -13,9 +13,9 @@ const defaultConfig = {
 	leftConfig: { strokecolor: "#ff0000", doAdvancedPlot: false, name: "f(x)" },
 	rightConfig: { strokecolor: "#0000ff", doAdvancedPlot: false, name: "g(x)" },
 	foldConfig: { strokecolor: "#000000", name: "(f⁕g)" },
-	boardConfig: { axis: true, boundingbox: [-5, 2, 5, -1], showCopyright: false, showNavigation:false },
-	leftRightGraphHeight: 200,
-	foldGraphHeight: 400,
+	boardConfig: { axis: true, boundingbox: [-5, 1.5, 5, -1], showCopyright: false, showNavigation:false },
+	leftRightGraphHeight: 150,
+	foldGraphHeight: 300,
 	sliderMax: 3.5,
 }
 type Config = typeof defaultConfig;
