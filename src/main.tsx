@@ -6,15 +6,17 @@ import 'bootstrap/css/bootstrap.css!';
 import 'jsxgraphcore.js';
 import * as $ from "jquery";
 
+JXG.Options.text.fontSize = 16;
 const defaultConfig = {
 	leftFn: "Triangle", rightFn: "Square",
-	defaultConfig: { strokewidth: 2, withLabel: true },
+	defaultConfig: { strokewidth: 3, withLabel: true },
 	leftConfig: { strokecolor: "#ff0000", doAdvancedPlot: false, name: "f(x)" },
 	rightConfig: { strokecolor: "#0000ff", doAdvancedPlot: false, name: "g(x)" },
 	foldConfig: { strokecolor: "#000000", name: "(f⁕g)" },
-	boardConfig: { axis: true, boundingbox: [-5, 2, 5, -1], showCopyright: false },
+	boardConfig: { axis: true, boundingbox: [-5, 2, 5, -1], showCopyright: false, showNavigation:false },
 	leftRightGraphHeight: 200,
-	foldGraphHeight: 400
+	foldGraphHeight: 400,
+	sliderMax: 3.5,
 }
 type Config = typeof defaultConfig;
 interface MFunction {
@@ -66,7 +68,7 @@ function fold(f: (x: number) => number, g: (x: number) => number, t: number, tMa
 	return sum * step;
 }
 class Gui extends React.Component<{}, Config> {
-	leftGraph: any; rightGraph: any; foldGraph: any;
+	leftGraph: any; rightGraph: any; foldGraph: any; slider: any;
 	constructor(props: {}) {
 		super(props);
 		this.state = defaultConfig;
@@ -78,17 +80,18 @@ class Gui extends React.Component<{}, Config> {
 				<div className="page-header"><h1>Convolution demo</h1></div>
 				<div className="row">
 					<div className="col-sm-6">
-						<select value={this.state.leftFn} onChange={(x: any) => this.setState({ leftFn: x.target.value }) }>{options}</select>
+						<select className="form-control" value={this.state.leftFn} onChange={(x: any) => this.setState({ leftFn: x.target.value }) }>{options}</select>
 						<p className="tex2jax_process">{`$$${this.state.leftConfig.name}=${functions[this.state.leftFn].tex("x")}$$`}</p>
 						<div id="leftGraph" style={{ height: this.state.leftRightGraphHeight }} />
 					</div>
 					<div className="col-sm-6">
-						<select value={this.state.rightFn} onChange={(x: any) => this.setState({ rightFn: x.target.value }) }>{options}</select>
+						<select className="form-control" value={this.state.rightFn} onChange={(x: any) => this.setState({ rightFn: x.target.value }) }>{options}</select>
 						<p className="tex2jax_process">{`$$${this.state.rightConfig.name}=${functions[this.state.rightFn].tex("x")}$$`}</p>
 						<div id="rightGraph" style={{ height: this.state.leftRightGraphHeight }} />
 					</div>
 				</div>
 				<hr />
+				<button onClick={() => {this.slider.moveTo([-4,0]); this.slider.moveTo([4,0],10000)}}>Animate</button>
 				<div className="col-sm-12" id="foldGraph" style={{ height: this.state.foldGraphHeight }} />
 				<div className="col-sm-12 tex2jax_process">{raw`
 					$$\begin{matrix}
@@ -117,8 +120,9 @@ class Gui extends React.Component<{}, Config> {
 		this.leftGraph.create('functiongraph', [f], fcfg);
 		this.rightGraph.create('functiongraph', [g], gcfg);
 		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", this.state.boardConfig);
-		const slider = this.foldGraph.create('slider', [[-4, -.5], [4, -.5], [-4, -.75, 4]], { name: 't' });
-		this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#666", doAdvancedPlot: false })
+		const s = this.state.sliderMax;
+		const slider = this.slider = this.foldGraph.create('slider', [[-s, -.75], [s, -.75], [-s, -.75, s]], { name: 't' });
+		this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#808", doAdvancedPlot: false })
 		this.foldGraph.create('functiongraph', [f], $.extend({}, fcfg, {withLabel:false}));
 		this.foldGraph.create('functiongraph', [(x: number) => g(slider.Value() - x)], $.extend({}, gcfg, {withLabel:false}));
 		this.foldGraph.create('functiongraph', [(t: number) => fold(f, g, t, slider.Value())], $.extend({}, foldcfg, {withLabel:false}));
