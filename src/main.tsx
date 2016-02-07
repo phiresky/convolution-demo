@@ -14,7 +14,7 @@ const defaultConfig = {
 	foldConfig: { strokecolor: "#000000", name: "(f⁕g)" },
 	boardConfig: { axis: true, boundingbox: [-5, 1.5, 5, -1], showCopyright: false, showNavigation:false },
 	leftRightGraphHeight: 150,
-	foldGraphHeight: 300,
+	foldGraphHeight: 350,
 	sliderMax: 3.5,
 }
 type Config = typeof defaultConfig;
@@ -118,7 +118,7 @@ class Gui extends React.Component<{}, Config> {
 		this.rightGraph = JXG.JSXGraph.initBoard("rightGraph", this.state.boardConfig);
 		this.leftGraph.create('functiongraph', [f], fcfg);
 		this.rightGraph.create('functiongraph', [g], gcfg);
-		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", this.state.boardConfig);
+		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", $.extend({}, this.state.boardConfig, {boundingbox: [-5, 2, 5, -1]}));
 		const s = this.state.sliderMax;
 		const slider = this.slider = this.foldGraph.create('slider', [[-s, -.75], [s, -.75], [-s, -.75, s]], { name: 't' });
 		this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#808", doAdvancedPlot: false })

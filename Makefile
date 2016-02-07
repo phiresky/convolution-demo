@@ -1,10 +1,13 @@
-all: bin bin/index.html bin/libs.css bin/program.js bin/libs.js
+all: bin bin/index.html bin/main.js  bin/bundle.js
 
-bin/%: src/%
+bin/index.html: index-dist.html
 	cp $< $@
 
-bin/program.js:
+bin/main.js:
 	tsc
+
+bin/bundle.js: bin/main.js
+	jspm bundle-sfx bin/main bin/bundle.js --minify
 
 bin:
 	[ -f bin/.git ] || (echo "bin not setup. see readme" && exit 1)
