@@ -3,7 +3,7 @@ all: bin bin/index.html bin/main.js  bin/bundle.js
 bin/index.html: index-dist.html
 	cp $< $@
 
-bin/main.js:
+bin/main.js: src/main.tsx
 	tsc
 
 bin/bundle.js: bin/main.js

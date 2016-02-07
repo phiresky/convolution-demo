@@ -101,6 +101,7 @@ class Gui extends React.Component<{}, Config> {
 						\end{matrix}
 					$$`}
 				</div>
+				<footer><small><a href="https://github.com/phiresky/convolution-demo">Source on GitHub</a></small></footer>
 			</div>
 		)
 	}
@@ -133,4 +134,3 @@ class Gui extends React.Component<{}, Config> {
 }
 
 (window as any).gui = ReactDOM.render(<Gui/>, document.getElementById("reactContent"));
-console.log("hi");
