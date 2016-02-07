@@ -96,7 +96,8 @@ class Gui extends React.Component<{}, Config> {
 					$$\begin{matrix}
 						\text{red:} & f(x) & = & ${functions[this.state.leftFn].tex("x")}\\
 						\text{blue:} & g(t-x) & = & ${functions[this.state.rightFn].tex("t-x")}\\
-						\text{black:} & (f*g)(t) & = & ${convolutionMath}
+						\text{black:} & (f*g)(t) & = & ${convolutionMath} \\
+						\text{purple:} & f(x) g(t-x) \\
 						\end{matrix}
 					$$`}
 				</div>

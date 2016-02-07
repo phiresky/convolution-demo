@@ -12,7 +12,7 @@ bin/bundle.js: bin/main.js
 bin:
 	[ -f bin/.git ] || (echo "bin not setup. see readme" && exit 1)
 
-gh-pages: bin
+gh-pages: all
 	cd bin; git add -A; git commit -m'update binaries'; git push
 
 .PHONY: gh-pages
