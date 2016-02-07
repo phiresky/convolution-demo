@@ -59,7 +59,7 @@ const convolutionMath = raw`
 function fold(f: (x: number) => number, g: (x: number) => number, t: number, tMax: number) {
 	// http://hipersayanx.blogspot.de/2015/06/image-convolution.html
 	let sum = 0;
-	let step = 0.01;
+	let step = 0.005;
 	if (t > tMax) return NaN;
 	for (let x = -5; x < 5; x += step) {
 		sum += f(x) * g(t - x);
@@ -121,10 +121,12 @@ class Gui extends React.Component<{}, Config> {
 		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", $.extend({}, this.state.boardConfig, { boundingbox: [-5, 2, 5, -1] }));
 		const s = this.state.sliderMax;
 		const slider = this.slider = this.foldGraph.create('slider', [[-s, -.75], [s, -.75], [-s, -.75, s]], { name: 't' });
-		this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#808", highlightFillColor: null as string, doAdvancedPlot: false })
+		//this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#808", highlightFillColor: null as string, doAdvancedPlot: false })
 		this.foldGraph.create('functiongraph', [f], $.extend({}, fcfg, { withLabel: false }));
 		this.foldGraph.create('functiongraph', [(x: number) => g(slider.Value() - x)], $.extend({}, gcfg, { withLabel: false }));
 		this.foldGraph.create('functiongraph', [(t: number) => fold(f, g, t, slider.Value())], $.extend({}, foldcfg, { withLabel: false }));
+		const ftimesg = this.foldGraph.create('functiongraph', [(x: number) => f(x)*g(slider.Value()-x)], {strokeColor:null, highlightStrokeColor:null});
+		this.foldGraph.create('integral', [[-5,5], ftimesg], {fillColor:"#808", highlightFillColor:null, strokeColor:null, highlightStrokeColor:null, withLabel:false})
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
 }
