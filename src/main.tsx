@@ -8,11 +8,11 @@ import * as $ from "jquery";
 JXG.Options.text.fontSize = 16;
 const defaultConfig = {
 	leftFn: "Triangle", rightFn: "Square",
-	defaultConfig: { strokewidth: 3, withLabel: true },
+	defaultConfig: { strokewidth: 3, withLabel: true, highlightStrokeColor: null as string },
 	leftConfig: { strokecolor: "#ff0000", doAdvancedPlot: false, name: "f(x)" },
 	rightConfig: { strokecolor: "#0000ff", doAdvancedPlot: false, name: "g(x)" },
 	foldConfig: { strokecolor: "#000000", name: "(f⁕g)" },
-	boardConfig: { axis: true, boundingbox: [-5, 1.5, 5, -1], showCopyright: false, showNavigation:false },
+	boardConfig: { axis: true, boundingbox: [-5, 1.5, 5, -1], showCopyright: false, showNavigation: false },
 	leftRightGraphHeight: 150,
 	foldGraphHeight: 350,
 	sliderMax: 3.5,
@@ -49,9 +49,9 @@ const functions: { [name: string]: MFunction } = {
 }
 function raw(literals: any, ...placeholders: any[]) {
 	let result = "";
-	for (let i = 0; i < placeholders.length; i++) 
+	for (let i = 0; i < placeholders.length; i++)
 		result += literals.raw[i] + placeholders[i];
-    return result+ literals.raw[literals.length - 1];
+    return result + literals.raw[literals.length - 1];
 }
 const convolutionMath = raw`
 	(f * g)(t) = \int_{-\infty}^\infty f(\tau)\, g(t - \tau)\, d\tau
@@ -90,7 +90,7 @@ class Gui extends React.Component<{}, Config> {
 					</div>
 				</div>
 				<hr />
-				<button onClick={() => {this.slider.moveTo([-4,0]); this.slider.moveTo([4,0],10000)}}>Animate</button>
+				<button onClick={() => { this.slider.moveTo([-4, 0]); this.slider.moveTo([4, 0], 10000) } }>Animate</button>
 				<div className="col-sm-12" id="foldGraph" style={{ height: this.state.foldGraphHeight }} />
 				<div className="col-sm-12 tex2jax_process">{raw`
 					$$\begin{matrix}
@@ -118,13 +118,13 @@ class Gui extends React.Component<{}, Config> {
 		this.rightGraph = JXG.JSXGraph.initBoard("rightGraph", this.state.boardConfig);
 		this.leftGraph.create('functiongraph', [f], fcfg);
 		this.rightGraph.create('functiongraph', [g], gcfg);
-		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", $.extend({}, this.state.boardConfig, {boundingbox: [-5, 2, 5, -1]}));
+		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", $.extend({}, this.state.boardConfig, { boundingbox: [-5, 2, 5, -1] }));
 		const s = this.state.sliderMax;
 		const slider = this.slider = this.foldGraph.create('slider', [[-s, -.75], [s, -.75], [-s, -.75, s]], { name: 't' });
-		this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#808", doAdvancedPlot: false })
-		this.foldGraph.create('functiongraph', [f], $.extend({}, fcfg, {withLabel:false}));
-		this.foldGraph.create('functiongraph', [(x: number) => g(slider.Value() - x)], $.extend({}, gcfg, {withLabel:false}));
-		this.foldGraph.create('functiongraph', [(t: number) => fold(f, g, t, slider.Value())], $.extend({}, foldcfg, {withLabel:false}));
+		this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#808", highlightFillColor: null as string, doAdvancedPlot: false })
+		this.foldGraph.create('functiongraph', [f], $.extend({}, fcfg, { withLabel: false }));
+		this.foldGraph.create('functiongraph', [(x: number) => g(slider.Value() - x)], $.extend({}, gcfg, { withLabel: false }));
+		this.foldGraph.create('functiongraph', [(t: number) => fold(f, g, t, slider.Value())], $.extend({}, foldcfg, { withLabel: false }));
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
 }
