@@ -11,4 +11,8 @@
 	}
 </style>
 <div class="container tex2jax_ignore" id="reactContent"></div>
-<script src="bundle.js"></script>
+<script src="jspm_packages/system.js"></script>
+<script src="config.js"></script>
+<script>
+	System.import("bin/main");
+</script>
