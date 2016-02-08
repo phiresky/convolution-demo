@@ -18,14 +18,18 @@ const defaultConfig = {
 	sliderMax: 3.5,
 }
 type Config = typeof defaultConfig;
+type Point = { x: number, y: number };
+type Func = (x: number) => number;
 interface MFunction {
-	fn: (x: number) => number,
-	tex: (x: string) => string
+	fn: (...params: Point[]) => Func,
+	tex: (x: string) => string,
+	defaultparams: Point[]
 }
-const diracA = 0.008;
+const diracA = 0.08;
 const functions: { [name: string]: MFunction } = {
 	Triangle: {
-		fn: x => Math.abs(x) <= 1 ? 1 - Math.abs(x) : 0,
+		fn: size => x => Math.abs(x) <= size.x ? size.y - Math.abs(x) / size.x * size.y : 0,
+		defaultparams: [{ x: 1, y: 1 }],
 		tex: x => raw`
 			\begin{cases}
 				1 - |${x}| & \text{for } |${x}| \leq 1 \\
@@ -34,7 +38,8 @@ const functions: { [name: string]: MFunction } = {
 		`,
 	},
 	Square: {
-		fn: x => Math.abs(x) <= 1 ? 1 : 0,
+		fn: size => x => Math.abs(x) <= size.x ? size.y : 0,
+		defaultparams: [{ x: 1, y: 1 }],
 		tex: x => raw`
 			\begin{cases}
 				1 & \text{for }|${x}| \leq 1 \\
@@ -43,7 +48,8 @@ const functions: { [name: string]: MFunction } = {
 		`
 	},
 	"Dirac Delta": {
-		fn: x => Math.exp(-x * x / diracA / diracA) / diracA / Math.sqrt(Math.PI),
+		fn: () => x => Math.exp(-x * x / diracA / diracA) / diracA / Math.sqrt(Math.PI),
+		defaultparams: [],
 		tex: x => raw`\frac{e^{-(${x})^2/\varepsilon^2}}{\varepsilon \sqrt \pi} \qquad (\varepsilon \rightarrow 0)`
 	}
 }
@@ -56,7 +62,7 @@ function raw(literals: any, ...placeholders: any[]) {
 const convolutionMath = raw`
 	(f * g)(t) = \int_{-\infty}^\infty f(\tau)\, g(t - \tau)\, d\tau
 `;
-function fold(f: (x: number) => number, g: (x: number) => number, t: number, tMax: number) {
+function fold(f: Func, g: Func, t: number, tMax: number) {
 	// http://hipersayanx.blogspot.de/2015/06/image-convolution.html
 	let sum = 0;
 	let step = 0.005;
@@ -108,27 +114,39 @@ class Gui extends React.Component<{}, Config> {
 	componentDidMount() {
 		this.componentDidUpdate({}, null);
 	}
+	getparams(params: any[]) {
+		return params.map(p => ({ x: p.X(), y: p.Y() }));
+	}
 	componentDidUpdate(prevProps: {}, prevState: Config) {
 		//JXG.JSXGraph.freeBoard("leftGraph");
 		//JXG.JSXGraph.freeBoard("rightGraph");
-		const f = functions[this.state.leftFn].fn;
-		const g = functions[this.state.rightFn].fn;
+		const f = functions[this.state.leftFn];
+		const g = functions[this.state.rightFn];
 		const fcfg = $.extend({}, this.state.defaultConfig, this.state.leftConfig);
 		const gcfg = $.extend({}, this.state.defaultConfig, this.state.rightConfig);
 		const foldcfg = $.extend({}, this.state.defaultConfig, this.state.foldConfig);
 		this.leftGraph = JXG.JSXGraph.initBoard("leftGraph", this.state.boardConfig);
 		this.rightGraph = JXG.JSXGraph.initBoard("rightGraph", this.state.boardConfig);
-		this.leftGraph.create('functiongraph', [f], fcfg);
-		this.rightGraph.create('functiongraph', [g], gcfg);
 		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", $.extend({}, this.state.boardConfig, { boundingbox: [-5, 2, 5, -1] }));
+		const fparams = f.defaultparams.map(p => this.leftGraph.create('point', [p.x, p.y], { size: 4, withLabel:false }));
+		const gparams = g.defaultparams.map(p => this.rightGraph.create('point', [p.x, p.y], { size: 4, withLabel:false }));
+		var ffn: Func, gfn: Func;
+		const updateffn = () => {ffn = f.fn(...this.getparams(fparams)); this.foldGraph.update(); };
+		const updategfn = () => {gfn = g.fn(...this.getparams(gparams)); this.foldGraph.update(); };
+		updateffn(); updategfn();
+		// to allow ffn and gfn updates
+		const indirectffn = (x:number) => ffn(x), indirectgfn = (x:number) => gfn(x);
+		this.leftGraph.create('functiongraph', [indirectffn], fcfg);
+		this.rightGraph.create('functiongraph', [indirectgfn], gcfg);
 		const s = this.state.sliderMax;
 		const slider = this.slider = this.foldGraph.create('slider', [[-s, -.75], [s, -.75], [-s, -.75, s]], { name: 't' });
-		//this.foldGraph.create('functiongraph', [(x: number) => Math.min(f(x), g(slider.Value() - x))], { fillColor: "#808", highlightFillColor: null as string, doAdvancedPlot: false })
-		this.foldGraph.create('functiongraph', [f], $.extend({}, fcfg, { withLabel: false }));
-		this.foldGraph.create('functiongraph', [(x: number) => g(slider.Value() - x)], $.extend({}, gcfg, { withLabel: false }));
-		this.foldGraph.create('functiongraph', [(t: number) => fold(f, g, t, slider.Value())], $.extend({}, foldcfg, { withLabel: false }));
-		const ftimesg = this.foldGraph.create('functiongraph', [(x: number) => f(x)*g(slider.Value()-x)], {strokeColor:null, highlightStrokeColor:null});
-		this.foldGraph.create('integral', [[-5,5], ftimesg], {fillColor:"#808", highlightFillColor:null, strokeColor:null, highlightStrokeColor:null, withLabel:false})
+		this.foldGraph.create('functiongraph', [indirectffn], $.extend({}, fcfg, { withLabel: false }));
+		this.foldGraph.create('functiongraph', [(x: number) => gfn(slider.Value() - x)], $.extend({}, gcfg, { withLabel: false }));
+		this.foldGraph.create('functiongraph', [(t: number) => fold(ffn, gfn, t, slider.Value())], $.extend({}, foldcfg, { withLabel: false }));
+		const ftimesg = this.foldGraph.create('functiongraph', [(x: number) => ffn(x) * gfn(slider.Value() - x)], { strokeColor: null, highlightStrokeColor: null });
+		this.foldGraph.create('integral', [[-5, 5], ftimesg], { fillColor: "#808", highlightFillColor: null, strokeColor: null, highlightStrokeColor: null, withLabel: false });
+		this.leftGraph.on("update", updateffn);
+		this.rightGraph.on("update", updategfn);
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
 }
