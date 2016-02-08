@@ -1,3 +1,9 @@
 {
-  "jspm": {}
+  "jspm": {
+    "dependencies": {
+      "jquery": "npm:jquery@^2.2.0",
+      "react": "npm:react@^0.14.7",
+      "react-dom": "npm:react-dom@^0.14.7"
+    }
+  }
 }

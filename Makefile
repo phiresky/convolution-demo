@@ -1,7 +1,8 @@
-all: bin bin/index.html bin/main.js  bin/bundle.js
+all: bin/.git bin/index.html bin/main.js  bin/bundle.js
 
-bin/index.html: index-dist.html
+bin/index.html: index.html
 	cp $< $@
+	patch bin/index.html < src/index-dist.patch
 
 bin/main.js: src/main.tsx
 	tsc
@@ -9,8 +10,8 @@ bin/main.js: src/main.tsx
 bin/bundle.js: bin/main.js
 	jspm bundle-sfx bin/main bin/bundle.js --minify
 
-bin:
-	[ -f bin/.git ] || (echo "bin not setup. see readme" && exit 1)
+bin/.git:
+	[ -f bin/.git ] || git worktree add bin/ gh-pages
 
 gh-pages: all
 	cd bin; git add -A; git commit -m'update binaries'; git push
