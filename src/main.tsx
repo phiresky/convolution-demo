@@ -17,6 +17,7 @@ const defaultConfig = {
 	leftRightGraphHeight: 150,
 	foldGraphHeight: 350,
 	sliderMax: 3.5,
+	totalAnimationTime: 10000 // ms
 }
 type Config = typeof defaultConfig;
 type Point = { x: number, y: number };
@@ -123,7 +124,7 @@ class Gui extends React.Component<{}, Config> {
 					</div>
 				</div>
 				<hr />
-				<AnimationBar slider={() => this.slider} sliderMax={this.state.sliderMax} />
+				<AnimationBar slider={() => this.slider} animationTime={this.state.totalAnimationTime} sliderMax={this.state.sliderMax} />
 
 				<div className="col-sm-12" id="foldGraph" style={{ height: this.state.foldGraphHeight }} />
 				<div className="col-sm-12 tex2jax_process">{raw`
@@ -179,27 +180,31 @@ class Gui extends React.Component<{}, Config> {
 	}
 }
 
-class AnimationBar extends React.Component<{ slider: () => any, sliderMax: number }, { running: boolean }> {
+class AnimationBar extends React.Component<{ slider: () => any, sliderMax: number, animationTime: number }, { running: boolean }> {
 	constructor(props: any) {
 		super(props);
 		this.state = { running: false };
 	}
 	render() {
-		const {slider, sliderMax} = this.props;
+		const {slider, sliderMax, animationTime} = this.props;
+		const reset = () => {
+			slider().moveTo([-sliderMax, 0], 1);
+			this.setState({ running: false });
+		}
 		const start = () => {
-			slider().moveTo([sliderMax, 0], 10000);
-			this.setState({running: true});
+			const curX = slider().X();
+			if (curX == sliderMax) slider().moveTo([-sliderMax, 0]);
+			const duration = animationTime / (2 * sliderMax) * (sliderMax - slider().X());
+			slider().moveTo([sliderMax, 0], duration, { callback: () => this.setState({ running: false }) });
+			this.setState({ running: true });
 		}
 		const stop = () => {
 			slider().moveTo([slider().X(), 0], 1);
-			this.setState({running: false});
+			this.setState({ running: false });
 		}
-		const reset = () => {
-			slider().moveTo([-sliderMax, 0], 1);
-			this.setState({running: false});
-		}
+
 		let runBtn = <button className={"btn btn-primary"} onClick={start}>Animate</button>
-		if(this.state.running)
+		if (this.state.running)
 			runBtn = <button className={"btn btn-danger"} onClick={stop}>Stop</button>;
 		return <div className="btn-group">
 			{runBtn}
