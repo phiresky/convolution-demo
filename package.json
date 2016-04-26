@@ -5,5 +5,8 @@
       "react": "npm:react@^0.14.7",
       "react-dom": "npm:react-dom@^0.14.7"
     }
+  },
+  "devDependencies": {
+    "jspm": "^0.16.33"
   }
 }

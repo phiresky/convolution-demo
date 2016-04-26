@@ -17,7 +17,6 @@ const defaultConfig = {
 	leftRightGraphHeight: 150,
 	foldGraphHeight: 350,
 	sliderMax: 3.5,
-
 }
 type Config = typeof defaultConfig;
 type Point = { x: number, y: number };
@@ -61,7 +60,7 @@ const functions: { [name: string]: MFunction } = {
 				0 & \text{else}
 			\end{cases}
 		`
-			
+
 	},
 	Gaussian: {
 		fn: (len) => x => Math.exp(-x * x / len.x / len.x) / len.x / Math.sqrt(Math.PI),
@@ -70,8 +69,8 @@ const functions: { [name: string]: MFunction } = {
 		paramtex: a => x => raw`\frac{e^{-(${x})^2/${a}^2}}{${a} \sqrt \pi} \qquad`
 	},
 	Sawtooth: {
-		fn: (a, b) => x => (x > Math.min(a.x,b.x) && x < Math.max(a.x, b.x)) ? (b.y-a.y) / (b.x - a.x) * (x-a.x) + a.y : 0,
-		defaultparams: [{x:0,y:0}, {x:1,y:1}],
+		fn: (a, b) => x => (x > Math.min(a.x, b.x) && x < Math.max(a.x, b.x)) ? (b.y - a.y) / (b.x - a.x) * (x - a.x) + a.y : 0,
+		defaultparams: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
 		tex: x => raw`\text{TODO}`,
 		paramtex: a => x => raw`
 			\begin{cases}
@@ -124,7 +123,8 @@ class Gui extends React.Component<{}, Config> {
 					</div>
 				</div>
 				<hr />
-				<button onClick={() => { this.slider.moveTo([-4, 0]); this.slider.moveTo([4, 0], 10000) } }>Animate</button>
+				<AnimationBar slider={() => this.slider} sliderMax={this.state.sliderMax} />
+
 				<div className="col-sm-12" id="foldGraph" style={{ height: this.state.foldGraphHeight }} />
 				<div className="col-sm-12 tex2jax_process">{raw`
 					$$\begin{matrix}
@@ -156,8 +156,8 @@ class Gui extends React.Component<{}, Config> {
 		this.leftGraph = JXG.JSXGraph.initBoard("leftGraph", this.state.boardConfig);
 		this.rightGraph = JXG.JSXGraph.initBoard("rightGraph", this.state.boardConfig);
 		this.foldGraph = JXG.JSXGraph.initBoard("foldGraph", $.extend({}, this.state.boardConfig, { boundingbox: [-5, 2, 5, -1] }));
-		const fparams = f.defaultparams.map((p,i) => this.leftGraph.create('point', [p.x, p.y], { size: 4, name:["a","a'"][i], strokeColor: this.state.leftConfig.strokecolor, fillColor: this.state.leftConfig.strokecolor }));
-		const gparams = g.defaultparams.map((p,i) => this.rightGraph.create('point', [p.x, p.y], { size: 4, name:["b","b'"][i], strokeColor: this.state.rightConfig.strokecolor, fillColor: this.state.rightConfig.strokecolor }));
+		const fparams = f.defaultparams.map((p, i) => this.leftGraph.create('point', [p.x, p.y], { size: 4, name: ["a", "a'"][i], strokeColor: this.state.leftConfig.strokecolor, fillColor: this.state.leftConfig.strokecolor }));
+		const gparams = g.defaultparams.map((p, i) => this.rightGraph.create('point', [p.x, p.y], { size: 4, name: ["b", "b'"][i], strokeColor: this.state.rightConfig.strokecolor, fillColor: this.state.rightConfig.strokecolor }));
 		var ffn: Func, gfn: Func;
 		const updateffn = () => { ffn = f.fn(...this.getparams(fparams)); this.foldGraph.update(); };
 		const updategfn = () => { gfn = g.fn(...this.getparams(gparams)); this.foldGraph.update(); };
@@ -176,6 +176,35 @@ class Gui extends React.Component<{}, Config> {
 		this.leftGraph.on("update", updateffn);
 		this.rightGraph.on("update", updategfn);
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+	}
+}
+
+class AnimationBar extends React.Component<{ slider: () => any, sliderMax: number }, { running: boolean }> {
+	constructor(props: any) {
+		super(props);
+		this.state = { running: false };
+	}
+	render() {
+		const {slider, sliderMax} = this.props;
+		const start = () => {
+			slider().moveTo([sliderMax, 0], 10000);
+			this.setState({running: true});
+		}
+		const stop = () => {
+			slider().moveTo([slider().X(), 0], 1);
+			this.setState({running: false});
+		}
+		const reset = () => {
+			slider().moveTo([-sliderMax, 0], 1);
+			this.setState({running: false});
+		}
+		let runBtn = <button className={"btn btn-primary"} onClick={start}>Animate</button>
+		if(this.state.running)
+			runBtn = <button className={"btn btn-danger"} onClick={stop}>Stop</button>;
+		return <div className="btn-group">
+			{runBtn}
+			<button className="btn btn-warning" onClick={reset}>Reset</button>
+		</div>
 	}
 }
 
