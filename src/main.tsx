@@ -29,6 +29,7 @@ interface MFunction {
 	defaultparams: Point[]
 }
 const diracA = 0.005;
+const foldStep = 0.005;
 const functions: { [name: string]: MFunction } = {
 	Triangle: {
 		fn: size => x => Math.abs(x) <= size.x ? size.y - Math.abs(x) / size.x * size.y : 0,
@@ -119,14 +120,13 @@ const convolutionMath = raw`
 const cache = {f: null as Func, g: null as Func, val: [] as number[]};
 function cachedFold(f: Func, g: Func, t: number, tMax: number) {
 	if (t > tMax) return NaN;
-	let step = 0.005;
 	if(cache.f != f || cache.g != g) {
 		cache.f = f; cache.g = g;
-		for(let t = -integralBound; t < integralBound; t += step) {
-			cache.val[((t + integralBound) / step) | 0] = fold(f, g, step, t);
+		for(let t = -integralBound; t < integralBound; t += foldStep) {
+			cache.val[((t + integralBound) / foldStep) | 0] = fold(f, g, foldStep, t);
 		}
 	}
-	return cache.val[((t + integralBound) / step) | 0];
+	return cache.val[((t + integralBound) / foldStep) | 0];
 }
 function fold(f: Func, g: Func, step: number, t: number) {
 	// http://hipersayanx.blogspot.de/2015/06/image-convolution.html
