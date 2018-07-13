@@ -2,7 +2,6 @@
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "bin",
-		"watch": false,
 		"sourceMap": true,
 		"module": "commonjs",
 		"jsx": "react",

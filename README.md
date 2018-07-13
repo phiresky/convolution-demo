@@ -9,6 +9,6 @@ The demo runs completely client-side in the browser. The `index.html` file in th
 Written using [TypeScript](http://www.typescriptlang.org/) + [React](https://facebook.github.io/react/).
 
 * Run `yarn` once to get the dependencies
-* Run `git worktree add bin/ gh-pages` once to set up the github pages branch
+* Run `git worktree add dist/ gh-pages` once to set up the github pages branch
 * Run `yarn run dev`, then open <http://localhost:1234> for the dev server
-* Run `yarn run build` to build the production version into the folder `dist` which will be checked out to the `gh-pages` branch
+* Run `yarn run build` to build the production version into the folder `dist`
