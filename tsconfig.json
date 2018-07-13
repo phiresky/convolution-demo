@@ -9,8 +9,5 @@
 		"module": "system",
 		"jsx": "react"
 	},
-	"files": [
-		"./lib/typings/browser.d.ts",
-		"./src/main.tsx"
-	]
+	"files": ["./lib/typings/browser.d.ts", "./src/main.tsx"]
 }
