@@ -4,10 +4,12 @@
 		"outDir": "bin",
 		"watch": false,
 		"sourceMap": true,
-		"noImplicitAny": true,
-		"suppressImplicitAnyIndexErrors": true,
-		"module": "system",
-		"jsx": "react"
+		"module": "commonjs",
+		"jsx": "react",
+		"strict": true,
+		"importHelpers": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true
 	},
-	"files": ["./lib/typings/browser.d.ts", "./src/main.tsx"]
+	"files": ["./src/main.tsx"]
 }

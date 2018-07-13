@@ -1,8 +1,0 @@
-11,15c11
-< <script src="jspm_packages/system.js"></script>
-< <script src="config.js"></script>
-< <script>
-< 	System.import("bin/main");
-< </script>
----
-> <script src="bundle.js"></script>

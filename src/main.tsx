@@ -1,9 +1,9 @@
 declare var JXG: any, MathJax: any;
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import "bootstrap";
-import "bootstrap/css/bootstrap.css!";
 import * as $ from "jquery";
+// import "bootstrap";
+import "bootstrap/dist/css/bootstrap.css";
 
 JXG.Options.text.fontSize = 16;
 const integralBound = 5; // assume x values > this and <(-this) are 0
@@ -13,7 +13,7 @@ const defaultConfig = {
 	defaultConfig: {
 		strokewidth: 3,
 		withLabel: true,
-		highlightStrokeColor: null as string
+		highlightStrokeColor: null as string | null
 	},
 	leftConfig: { strokecolor: "#ff0000", doAdvancedPlot: false, name: "f(x)" },
 	rightConfig: {
@@ -151,7 +151,11 @@ const convolutionMath = raw`
 	(f * g)(t) = \int_{-\infty}^\infty f(\tau)\, g(t - \tau)\, d\tau
 `;
 
-const cache = { f: null as Func, g: null as Func, val: [] as number[] };
+const cache = {
+	f: null as Func | null,
+	g: null as Func | null,
+	val: [] as number[]
+};
 function cachedFold(f: Func, g: Func, t: number, tMax: number) {
 	if (t > tMax) return NaN;
 	if (cache.f != f || cache.g != g) {
@@ -279,7 +283,7 @@ class Gui extends React.Component<{}, Config> {
 	getparams(params: any[]) {
 		return params.map(p => ({ x: p.X(), y: p.Y() }));
 	}
-	componentDidUpdate(prevProps: {}, prevState: Config) {
+	componentDidUpdate(prevProps: {}, prevState: unknown) {
 		//JXG.JSXGraph.freeBoard("leftGraph");
 		//JXG.JSXGraph.freeBoard("rightGraph");
 		const f = functions[this.state.leftFn];
